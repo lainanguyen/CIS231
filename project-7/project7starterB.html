@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+<HTML>
+<HEAD>
+<TITLE>Project #7 - Test Driven Development</TITLE>
+<META charset="UTF-8" />
+<META name="author" content="laina nguyen" />
+<META name="date" content="april 12, 2022">
+<META name="description" content="This project will demonstrate the student's ability to 
+create a library of functions for calculating values of electronic components" />
+<SCRIPT src="rfmath.js"></SCRIPT>
+<SCRIPT>
+/*
+ * Computers, radios, and networking equipment all need to maintain managed frequencies to operate correctly.
+ * Tank circuits are combinations of resistors, capacitors, and inductors that can filter out unwanted
+ * frequencies, keeping everything well synchronized.  The resonant frequency is calculated as
+ * 1 / (2*PI*sqrt(C*L)). Q is the quality factor, calculated as (1/R) * sqrt(L/C).  A higher Q, usually around 100, means
+ * better filtering.
+ *
+ * Your goal is to, first, create functions to calculate the frequency and Q of a circuit with given L,C, and R.
+ * Next, calculate the best L and C for a given R, Q, and frequency (hint: you will need loops for this).
+ * For purposes of this project, assume all circuits are parallel.
+ */
+// This function simulates the entry of data into the text boxes and associated
+// button clicks.  It runs immediately when the page loads.
+// Functions frequency(float, float), findQ(float, float, float), and findBestLC(float,float,float) are
+// provided by rfmath.js.
+function testAll() {
+	var test1 = test2 = test3 = false;
+	test1 = Math.floor(100*frequency(100,100))==159;
+	if (!test1) {
+		document.getElementById("testResults1").innerHTML = "Test 1A: calculate frequency did not come up with the correct result. FAIL!";
+		return;
+	}
+	test1 = Math.floor(frequency(.01611,.01572))==10001;
+	if (!test1) {
+		document.getElementById("testResults1").innerHTML = "Test 1B: calculate frequency did not come up with the correct result. FAIL!";
+		return;
+	}
+	test1 = frequency("Bad1","Bad2")==null;
+	if (!test1) {
+		document.getElementById("testResults1").innerHTML = "Test 1C: calculate frequency did not come up with the correct result. FAIL!";
+		return;
+	}
+	test1 = frequency(0,10)==null;
+	if (!test1) {
+		document.getElementById("testResults1").innerHTML = "Test 1D: calculate frequency did not come up with the correct result. FAIL!";
+		return;
+	}
+	test1 = frequency(-10,10)==null;
+	if (!test1) {
+		document.getElementById("testResults1").innerHTML = "Test 1E: calculate frequency did not come up with the correct result. FAIL!";
+		return;
+	}
+	document.getElementById("testResults1").innerHTML = "Test 1: calculate frequency: all tests PASSED!";
+	test2 = Math.floor(findQ(100,100,100))==100;
+	if (!test2) {
+		document.getElementById("testResults2").innerHTML = "Test 2A: calculate Q did not come up with the correct result. FAIL!";
+		return;
+	}
+	test2 = Math.floor(findQ(.01611,.01572,100))==98;
+	if (!test2) {
+		document.getElementById("testResults2").innerHTML = "Test 2B: calculate Q did not come up with the correct result. FAIL!";
+		return;
+	}
+	document.getElementById("testResults2").innerHTML = "Test 2: calculate Q: all tests PASSED!";
+	var LC = findBestLC(1.59,100,100);
+	test3 = (Math.floor(LC.L)==100 && Math.floor(LC.C)==100);
+	if (!test3) {
+		document.getElementById("testResults3").innerHTML = "Test 3A: calculate capacitance and inductance did not come up with the correct result. FAIL!";
+		return;
+	}
+	document.getElementById("testResults3").innerHTML = "Test 3: calculate capacitance and inductance: all tests PASSED!";
+}
+function CalculateFrequency() {
+	var L = Number(document.getElementById("inductance").value);
+	var C = Number(document.getElementById("capacitance").value);
+	var R = Number(document.getElementById("resistance").value);
+	var F = frequency(L,C);
+	var Q = findQ(L,C,R);
+	document.getElementById("Q").value = Q;
+	document.getElementById("frequency").value = F;
+}
+function CalculateLC() {
+	var R = Number(document.getElementById("resistance").value);
+	var Q = Number(document.getElementById("Q").value);
+	var F = Number(document.getElementById("frequency").value);
+	var LC = findBestLC(F,Q,R);
+	document.getElementById("inductance").value = LC.L;
+	document.getElementById("capacitance").value = LC.C;
+	document.getElementById("Q").value = findQ(LC.L,LC.C,R);
+}
+</SCRIPT>
+</HEAD>
+<BODY onLoad="testAll();">
+<DIV id="testResults1">Test 1: calculate frequency: not run</DIV>
+<DIV id="testResults2">Test 2: calculate Q: not run</DIV>
+<DIV id="testResults3">Test 3: find best L &amp; C: not run</DIV>
+
+<INPUT type="number" id="inductance" placeholder="Inductance (L, in &micro;H)" step="0.001"/>
+<INPUT type="number" id="capacitance" placeholder="Capacitance (C, in pF)" step="0.001"/>
+<INPUT type="number" id="resistance" placeholder="Resistance (R, in Kohms)" step="0.01"/>
+<INPUT type="number" id="Q" placeholder="Q" step="0.01"/>
+<INPUT type="number" id="frequency" placeholder="Frequency (f, in MHz)" step="0.000001"/>
+<BUTTON onClick="CalculateFrequency();">Calculate Frequency</BUTTON>
+<BUTTON onClick="CalculateLC();">Calculate Capacitance and Inductance</BUTTON>
+<BR />
+</BODY>
+</HTML>
