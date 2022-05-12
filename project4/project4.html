@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="laina nguyen">
+    <meta name="date" content="march 3, 2022">
+    <meta name="description" content="a simple spell check">
+    <title>Project 4</title>
+    <script type="text/javascript" src="wordlist.js"></script>
+    <script type="text/javascript">
+        function checkSpelling(){
+            var resultsBox = document.getElementById("results");
+            var textToCheck = document.getElementById("textBox").value;
+            var checkArray = textToCheck.split(' ');
+            var wrongWordList = [];
+            for (let i=0; i<checkArray.length; i++){
+                var wordToCheck = checkArray[i].toUpperCase().replace(",","").replace(".", "").replace(" ", "").replace(";", "").replace("?", "").replace("!", "").replace(":", "").replace("0", "").replace("1", "").replace("2", "").replace("3", "").replace("4", "").replace("5", "").replace("6", "").replace("7", "").replace("8", "").replace("9", "").replace("10", "").replace("11", "").replace("12", "").replace("13", "").replace("14", "").replace("15", "").replace("16", "").replace("17", "").replace("18", "").replace("19", "").replace("20", "").replace("'", "").replace("</br>", "");
+                if (wordToCheck.length == 0) continue;
+                // Quadratic (O(n^2))
+                let wordFound = false;
+                for (let word=0; word<wordlist.length; word++){
+                    if (wordToCheck == wordlist[word]){
+                        wordFound = true;
+                        break;
+                    }
+                }
+                if (!wordFound){
+                    wrongWordList.push(checkArray[i]);
+                }
+            }
+            resultsBox.innerHTML = "The wordlist has " + wordlist.length + " words in it. <br> You typed " + checkArray.length + " words." + " You typed " + wrongWordList.length + " mispelled words. <br>"
+        }
+    </script>
+</head>
+<body>
+    <p>Type some text into the box below, and click the "Check" button for a report of misspelled words.</p>
+    <div id="results"></div>
+    <br>
+    <button onclick="checkSpelling();">Check</button>
+    <br>
+    <br>
+    <textarea id="textBox" cols="40" rows="7" placeholder="Type here"></textarea>
+</body>
+</html>
