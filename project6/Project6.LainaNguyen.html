@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<HTML>
+<HEAD>
+<TITLE>Introduction to Programming Lesson 30</TITLE>
+<META charset="UTF-8" />
+<META name="author" content="Laina Nguyen" />
+<META name="date" content="april 19, 2022" />
+<SCRIPT type="text/javascript">
+function hoverText(td) {
+	var text = "Date: "+td.parentNode.id+";  "+td.id+": "+td.innerHTML;
+	document.getElementById("hoverdata").innerHTML = text;
+	td = null;
+}
+function displayAsTable(data,header) {
+	var sum = [];
+	var recordCounter = 0;
+	var tableHTML = "<TABLE border=2>";
+	// Add the header
+	tableHTML += "<TR>";
+	for (index in header) {
+		tableHTML += "<TH>"+header[index]+"</TH>";
+		sum[header[index]] = 0;
+	}
+	tableHTML += "</TR>";
+	// Add the data
+	for (rowIndex in data) {
+		tableHTML += "<TR id=\""+rowIndex+"\"><TD id=\"rowName\">"+rowIndex+"</TD>";
+		for (fieldIndex in data[rowIndex]) {
+			tableHTML += "<TD id=\""+fieldIndex+"\" onMouseOver=\"hoverText(this);\">"+data[rowIndex][fieldIndex]+"</TD>";
+			sum[fieldIndex] += Number(data[rowIndex][fieldIndex]);
+		}
+		tableHTML += "</TR>";
+		recordCounter++;
+	}
+	// Finish it up
+	tableHTML += "<TR><TH>AVERAGE:</TH>"
+	for (index in sum) {
+		if (index!="Date")
+			tableHTML += "<TH>"+(sum[index]/recordCounter).toFixed(2)+"</TH>";
+	}
+	tableHTML += "</TR></TABLE>";
+	document.getElementById("fileContents").innerHTML = tableHTML;
+}
+function displayFile() {
+	// Template started from lesson 26.
+	// Inspiration for this demo comes from 
+	// Gravelle, Robert. "Read Text Files Using the Javascript FileReader." n.d.
+	// 		Retrieved from https://www.htmlgoodies.com/beyond/javascript/read-text-files-using-the-javascript-filereader.html 13 Oct 2017.
+	// Zakas, Nicholas C. "Working with Files in Javascript, part 2." 15 May 2012.
+	//		Retrieved from https://www.nczonline.net/blog/2012/05/15/working-with-files-in-javascript-part-2/ 13 Oct 2017.
+	
+	// Check for the various File API support.
+	if (window.File && window.FileReader && window.FileList && window.Blob) {
+		//Retrieve the first (and only!) File from the FileList object
+		var fileObject = document.getElementById("filePicker").files[0]; 
+
+		if (!fileObject) {
+			alert("Failed to load file");
+		} else if (!fileObject.name.match('.csv')) {
+			alert(fileObject.name + " is not a valid csv file.");
+		} else {
+			// The FileReader is generic and can apply to any file.
+			var filePointer = new FileReader();
+			filePointer.onload = function(event) {
+				var csvData = [];
+				var csvLines = event.target.result.split("\r\n");
+				var header = csvLines[0].split(",");
+				for (var lineCounter=1;lineCounter<csvLines.length;lineCounter++) {
+					// Start with 1 because line 0 is the header line.
+					var thisRow = csvLines[lineCounter].split(",");
+					csvData[thisRow[0]] = [];
+					for (var fieldCounter=1;fieldCounter<thisRow.length;fieldCounter++) {
+						// Start with 1 because the first column is the row name.
+						csvData[thisRow[0]][header[fieldCounter]] = thisRow[fieldCounter];
+					}
+				}
+				displayAsTable(csvData,header);
+				// Add this function to get results form CSV file
+				displayAsGraph(csvData, header); 
+			};
+			// Once the generic instructions have been defined, we can now process the specific file.
+			filePointer.readAsText(fileObject);
+		}
+	} else {
+	  alert('The File APIs are not fully supported by your browser.');
+	}
+}
+function displayAsGraph(data, header){
+	var canvas = document.getElementById("canvas");
+	var context = canvas.getContext("2d");
+	var width = canvas.width;
+	var height = canvas.height;
+	var scaleX = Math.floor(width/23);
+	var scaleY = Math.floor(height/30);
+	// Formatting
+	context.fillStyle = "#ffffff";
+	canvas.fillRect(0,0,width, height);
+	canvas.strokeStyle = "#00ff00";
+	canvas.lineWidth = 5;
+	canvas.font = "15px Times New Roman"
+	// End of Formatting
+	canvas.beginPath();
+	canvas.moveTo(100, 150);
+	var recordCounter = 0;
+
+for (var temp in data){
+	var tempValue = Number(data[temp]["Temperature"]);
+	// Formatting
+	canvas.strokeStyle="#00ff00";
+	canvas.fillStyle = "#00ff00";
+	// End of Formatting
+	canvas.fillText("Temperature", 0, 75);
+	canvas.lineTo(150+recordCounter*50, 180-(100-tempValue)*3.5);
+	canvas.fillText(tempValue, 150+recordCounter*50, 165-(100-tempValue)*3.5);
+	recordCounter++;
+}
+canvas.stroke();
+
+canvas.beginPath();
+canvas.moveTo(100,150);
+recordCounter = 0;
+for (var hum in data){
+	var humValue = Number(data[hum]["Humidity"]);
+	canvas.strokeStyle="#0000ff";
+	canvas.lineTo(150+recordCounter*50,150-humValue);
+	canvas.fillStyle = "#0000ff";
+	canvas.fillText("Humidity", 0, 100);
+	canvas.fillText(humValue,150+recordCounter*50,135-humValue);
+	recordCounter++;
+}
+
+canvas.stroke();
+
+canvas.beginPath();
+canvas.moveTo(100,150);
+recordCounter = 0;
+for (var prec in data){
+	var precValue = Number(data[prec]["Precipitation"]);
+	canvas.strokeStyle="#ff0000";
+	canvas.lineTo(150+recordCounter*50,150-precValue*50);
+	canvas.fillStyle = "#ff0000";
+	canvas.fillText("Precipitation",0, 125);
+	canvas.fillText(precValue,150+recordCounter*50,135-precValue*50);
+	recordCounter++;
+}
+
+canvas.stroke();
+
+}
+</SCRIPT>
+</HEAD>
+<BODY>
+Select a CSV file to display as a table below. <BR />
+<INPUT type="file" id="filePicker" /><BUTTON onClick="displayFile();">Load the File</BUTTON>
+<DIV id="hoverdata" style="background: yellow; font-weight: bold;"></DIV>
+<DIV id="fileContents">
+
+</DIV>
+<BR />
+This demonstration shows a very simplistic way of converting a CSV to array and table.  To do it right, you should use 
+a library like <a href="http://papaparse.com/">Papa Parse</a>.<BR />
+</BODY>
+</HTML>
